@@ -88,7 +88,6 @@ void loop() {
   float f_heating = 0.8;
   float temp_current , t00 , t22 , time_stage=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
       temp_denature=95,
-      
       t_cntrl=2.0,
       integral_pd=0,
       diff_pd,
@@ -122,7 +121,7 @@ void loop() {
     /*denature*/
   while (ctrl_0==1) {
     
-    if(iter==1) t00=time_predenature+time_stage;
+    if(iter==1) t00=time_predenature;
     else t00=time_stage;
     mode=heat;
     f = f_heating;
