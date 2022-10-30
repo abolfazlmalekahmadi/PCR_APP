@@ -36,11 +36,11 @@ float f=0.0;//Motor drive coefficient
       temp_error[2],
       error_1[2],
       error_2[2],
-      time_current_stage,
+      time_current_denature_stage,
       drive_0,
       time_1,
       drive_1,
-      time_2,
+      time_current_extension_stage,
       drive_2;
 int iter=1;
 int thermoDO = 12;
@@ -84,11 +84,12 @@ void setup() {
 void loop() {
   int temp_extension=60;
   int time_predenature=0,
-      time_stage = 60000,
+      time_denature = 60000,
+      time_extension=6000,
       time_postextension = 60000,
   float f_cooling = 0;
   float f_heating = 0.8;
-  float temp_current , time_should_in_stage , t22 , time_stage=6000 , t2=6000, temp_threshold=2.0, 
+  float temp_current , time_should_in_denature , time_should_in_extension , temp_threshold=2.0, 
       temp_denature=95,
       integral_pd=0,
       diff_pd,
@@ -122,8 +123,8 @@ void loop() {
     /*denature*/
   while (ctrl_0==1) {
     
-    if(iter==1) time_should_in_stage=time_predenature;
-    else time_should_in_stage=time_stage;
+    if(iter==1) time_should_in_denature=time_predenature;
+    else time_should_in_denature=time_denature;
     mode=heat;
     f = f_heating;
     motorGo(MOTOR_1, heat,255);
@@ -143,15 +144,15 @@ void loop() {
       integral_0=0;
       diff_0=0;
       drive_0=255;
-      time_current_stage=millis(); // Reseting the current stage time
+      time_current_denature_stage=millis(); // Reseting the current stage time
     }   else if(temp_error[1]<(-5)){ //temp_error = temp_denature - temp_current if we are so much higher than the emergency cooling temprature, we change the peltier direction.
         drive_0=255;
         mode=cool;
         f = f_cooling;
       }
-      else if (millis()-time_current_stage<time_should_in_stage) { // This checks if we have spent enough time on the current stage.
+      else if (millis()-time_current_denature_stage<time_should_in_denature) { // This checks if we have spent enough time on the current stage.
         if(temp_error[1]>temp_threshold){ //The timer starts when the temperature reaches temp_denature-temp_threshold
-        time_current_stage=millis();
+        time_current_denature_stage=millis();
       }
       drive_0=K_P0*temp_error[1]+K_I0*integral_0+K_d0*diff_0;
       } else {
@@ -177,11 +178,11 @@ void loop() {
    }
   drive_0=0;
 
-if(iter==N_cycle) {t22=time_postextension+t2;time_2=millis();}
+if(iter==N_cycle) {time_should_in_extension=time_postextension+time_extension;time_current_extension_stage=millis();}
   while (ctrl_2==1) {
 
-    if(iter==N_cycle) t22=time_postextension+t2;
-    else t22=t2;
+    if(iter==N_cycle) time_should_in_extension=time_postextension+time_extension;
+    else time_should_in_extension=time_extension;
     mode=heat;
     f = f_heating;
     //motorGo(MOTOR_1, BRAKE,0);
@@ -203,17 +204,17 @@ Serial.print("\t");
       integral_2=0;
       diff_2=0;
       drive_2=255;
-      time_2=millis();
+      time_current_extension_stage=millis();
     }  else if(error_2[1]<(-5)){ //Emergency Cooling
         drive_2=255;
         mode=cool;
         f = f_cooling;
-        time_2=millis();
+        time_current_extension_stage=millis();
       }
-      else if (millis()-time_2<t22) {
+      else if (millis()-time_current_extension_stage<time_should_in_extension) {
         if(error_2[1]>temp_threshold)
         { //The timer starts when the temperature reaches temp_denature-1.5
-        time_2=millis();
+        time_current_extension_stage=millis();
       }
       drive_2=K_P2*error_2[1]+K_I2*integral_2+K_d2*diff_2;
       } else {
