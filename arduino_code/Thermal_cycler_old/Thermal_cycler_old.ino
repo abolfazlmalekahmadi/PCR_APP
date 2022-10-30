@@ -85,9 +85,10 @@ void loop() {
   int temp_extension=60;
   int time_predenature=0,
       time_stage = 60000,
+      time_postextension = 60000,
   float f_cooling = 0;
   float f_heating = 0.8;
-  float temp_current , time_should_in_stage , t22 , time_stage=6000 , t2=6000, tpe=00000, temp_threshold=2.0, 
+  float temp_current , time_should_in_stage , t22 , time_stage=6000 , t2=6000, temp_threshold=2.0, 
       temp_denature=95,
       integral_pd=0,
       diff_pd,
@@ -176,10 +177,10 @@ void loop() {
    }
   drive_0=0;
 
-if(iter==N_cycle) {t22=tpe+t2;time_2=millis();}
+if(iter==N_cycle) {t22=time_postextension+t2;time_2=millis();}
   while (ctrl_2==1) {
 
-    if(iter==N_cycle) t22=tpe+t2;
+    if(iter==N_cycle) t22=time_postextension+t2;
     else t22=t2;
     mode=heat;
     f = f_heating;
