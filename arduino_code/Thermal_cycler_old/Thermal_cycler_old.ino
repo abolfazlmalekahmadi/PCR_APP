@@ -33,10 +33,10 @@ String Cycle_state;
 int N_cycle=40; // Total Number of Cycles
 short mode;
 float f=0.0;//Motor drive coefficient 
-      error_0[2],
+      temp_error[2],
       error_1[2],
       error_2[2],
-      time_0,
+      time_stage,
       drive_0,
       time_1,
       drive_1,
@@ -76,7 +76,7 @@ void setup() {
     delay(500);
     digitalWrite(EN_PIN_1, HIGH);
     digitalWrite(EN_PIN_2, HIGH);
-  error_0[0]=0;
+  temp_error[0]=0;
   error_1[0]=0;
   error_2[0]=0;
 }
@@ -126,9 +126,9 @@ void loop() {
     motorGo(MOTOR_1, heat,255);
   temp_current=ktc.readCelsius();
   
-  error_0[1]=temp_denature-temp_current;
-  integral_0=integral_0+error_0[1];
-  diff_0=error_0[1]-error_0[0];
+  temp_error[1]=temp_denature-temp_current;
+  integral_0=integral_0+temp_error[1];
+  diff_0=temp_error[1]-temp_error[0];
   Cycle_state = "*";
   Serial.print(Cycle_state);
   Serial.print("\t");
@@ -136,22 +136,22 @@ void loop() {
   else Serial.print("preDen\t");
   Serial.print(temp_current);
   Serial.print("\t");
-   if (error_0[1]>t_cntrl){
+   if (temp_error[1]>t_cntrl){ // If this condition was true then it means that we haven't reached the temp_denature so we have to set the drive to 255 and restart the timer.
       integral_0=0;
       diff_0=0;
       drive_0=255;
-      time_0=millis();
-    }   else if(error_0[1]<(-5)){ //Emergency Cooling
+      time_stage=millis();
+    }   else if(temp_error[1]<(-5)){ //temp_error = temp_denature - temp_current if we are so much higher than the emergency cooling temprature, we change the peltier direction.
         drive_0=255;
         mode=cool;
         f = f_cooling;
 
       }
-      else if (millis()-time_0<t00) {
-        if(error_0[1]>t_fluc){ //The timer starts when the temperature reaches temp_denature-t_fluc
-        time_0=millis();
+      else if (millis()-time_stage<t00) {
+        if(temp_error[1]>t_fluc){ //The timer starts when the temperature reaches temp_denature-t_fluc
+        time_stage=millis();
       }
-      drive_0=K_P0*error_0[1]+K_I0*integral_0+K_d0*diff_0;
+      drive_0=K_P0*temp_error[1]+K_I0*integral_0+K_d0*diff_0;
       } else {
         ctrl_0=0;
       }
@@ -171,7 +171,7 @@ void loop() {
        Serial.print(iter);
        Serial.print("\n");
            delay(500);
-           error_0[0]=error_0[1];
+           temp_error[0]=temp_error[1];
    }
   drive_0=0;
 
