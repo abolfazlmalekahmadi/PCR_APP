@@ -87,7 +87,7 @@ void loop() {
       time_stage = 60000,
   float f_cooling = 0;
   float f_heating = 0.8;
-  float temp_current , t00 , t22 , time_stage=6000 , t2=6000, tpe=00000, temp_threshold=2.0, 
+  float temp_current , time_should_in_stage , t22 , time_stage=6000 , t2=6000, tpe=00000, temp_threshold=2.0, 
       temp_denature=95,
       integral_pd=0,
       diff_pd,
@@ -121,8 +121,8 @@ void loop() {
     /*denature*/
   while (ctrl_0==1) {
     
-    if(iter==1) t00=time_predenature;
-    else t00=time_stage;
+    if(iter==1) time_should_in_stage=time_predenature;
+    else time_should_in_stage=time_stage;
     mode=heat;
     f = f_heating;
     motorGo(MOTOR_1, heat,255);
@@ -148,7 +148,7 @@ void loop() {
         mode=cool;
         f = f_cooling;
       }
-      else if (millis()-time_current_stage<t00) { // This checks if we have spent enough time on the current stage.
+      else if (millis()-time_current_stage<time_should_in_stage) { // This checks if we have spent enough time on the current stage.
         if(temp_error[1]>temp_threshold){ //The timer starts when the temperature reaches temp_denature-temp_threshold
         time_current_stage=millis();
       }
