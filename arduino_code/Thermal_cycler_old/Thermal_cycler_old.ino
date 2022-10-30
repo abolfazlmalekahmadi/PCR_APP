@@ -82,6 +82,7 @@ void setup() {
 }
 
 void loop() {
+  int temp_extension=60;
   int time_predenature=0,
       time_stage = 60000,
   float f_cooling = 0;
@@ -185,8 +186,8 @@ if(iter==N_cycle) {t22=tpe+t2;time_2=millis();}
     //motorGo(MOTOR_1, BRAKE,0);
     temp_current=ktc.readCelsius();
   
-  int temp_2=60;
-  error_2[1]=temp_2-temp_current;
+  
+  error_2[1]=temp_extension-temp_current;
   integral_2=integral_2+error_2[1];
   diff_2=error_2[1]-error_2[0];
 //  Serial.print(millis());
