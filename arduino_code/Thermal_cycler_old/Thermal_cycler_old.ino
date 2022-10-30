@@ -34,8 +34,7 @@ int N_cycle=40; // Total Number of Cycles
 short mode;
 float f=0.0;//Motor drive coefficient 
       temp_error[2],
-      error_1[2],
-      error_2[2],
+      temp_error_extension[2],
       time_current_denature_stage,
       drive_0,
       time_1,
@@ -77,8 +76,7 @@ void setup() {
     digitalWrite(EN_PIN_1, HIGH);
     digitalWrite(EN_PIN_2, HIGH);
   temp_error[0]=0;
-  error_1[0]=0;
-  error_2[0]=0;
+  temp_error_extension[0]=0;
 }
 
 void loop() {
@@ -189,9 +187,9 @@ if(iter==N_cycle) {time_should_in_extension=time_postextension+time_extension;ti
     temp_current=ktc.readCelsius();
   
   
-  error_2[1]=temp_extension-temp_current;
-  integral_2=integral_2+error_2[1];
-  diff_2=error_2[1]-error_2[0];
+  temp_error_extension[1]=temp_extension-temp_current;
+  integral_2=integral_2+temp_error_extension[1];
+  diff_2=temp_error_extension[1]-temp_error_extension[0];
 //  Serial.print(millis());
 Serial.print(Cycle_state);
 Serial.print("\t");
@@ -200,23 +198,23 @@ Serial.print("\t");
   Serial.print(temp_current);
   Serial.print("\t");
   //Serial.print("\n");
-   if (error_2[1]>temp_threshold){
+   if (temp_error_extension[1]>temp_threshold){
       integral_2=0;
       diff_2=0;
       drive_2=255;
       time_current_extension_stage=millis();
-    }  else if(error_2[1]<(-5)){ //Emergency Cooling
+    }  else if(temp_error_extension[1]<(-5)){ //Emergency Cooling
         drive_2=255;
         mode=cool;
         f = f_cooling;
         time_current_extension_stage=millis();
       }
       else if (millis()-time_current_extension_stage<time_should_in_extension) {
-        if(error_2[1]>temp_threshold)
+        if(temp_error_extension[1]>temp_threshold)
         { //The timer starts when the temperature reaches temp_denature-1.5
         time_current_extension_stage=millis();
       }
-      drive_2=K_P2*error_2[1]+K_I2*integral_2+K_d2*diff_2;
+      drive_2=K_P2*temp_error_extension[1]+K_I2*integral_2+K_d2*diff_2;
       } else {
         ctrl_2=0;
         Serial.print("\n");
@@ -240,7 +238,7 @@ Serial.print("\t");
        Serial.print(iter);
        Serial.print("\n");
            delay(500);
-           error_2[0]=error_2[1];
+           temp_error_extension[0]=temp_error_extension[1];
    }
 
   drive_2=0;
