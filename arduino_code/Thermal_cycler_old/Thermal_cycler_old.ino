@@ -140,12 +140,11 @@ void loop() {
       integral_0=0;
       diff_0=0;
       drive_0=255;
-      time_current_stage=millis();
+      time_current_stage=millis(); // Reseting the current stage time
     }   else if(temp_error[1]<(-5)){ //temp_error = temp_denature - temp_current if we are so much higher than the emergency cooling temprature, we change the peltier direction.
         drive_0=255;
         mode=cool;
         f = f_cooling;
-
       }
       else if (millis()-time_current_stage<t00) {
         if(temp_error[1]>t_fluc){ //The timer starts when the temperature reaches temp_denature-t_fluc
