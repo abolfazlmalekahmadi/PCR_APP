@@ -82,10 +82,11 @@ void setup() {
 }
 
 void loop() {
-  int time_predenature=0;
+  int time_predenature=0,
+      time_stage = 60000,
   float f_cooling = 0;
   float f_heating = 0.8;
-  float temp_current , t00 , t22 , t0=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
+  float temp_current , t00 , t22 , time_stage=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
       temp_denature=95,
       
       t_cntrl=2.0,
@@ -121,8 +122,8 @@ void loop() {
     /*denature*/
   while (ctrl_0==1) {
     
-    if(iter==1) t00=tpd+t0;
-    else t00=t0;
+    if(iter==1) t00=time_predenature+time_stage;
+    else t00=time_stage;
     mode=heat;
     f = f_heating;
     motorGo(MOTOR_1, heat,255);
@@ -149,7 +150,7 @@ void loop() {
         f = f_cooling;
       }
       else if (millis()-time_current_stage<t00) { // This checks if we have spent enough time on the current stage.
-        if(temp_error[1]>t_fluc){ //The timer starts when the temperature reaches temp_denature-t_fluc
+        if(temp_error[1]>temp_threshold){ //The timer starts when the temperature reaches temp_denature-temp_threshold
         time_current_stage=millis();
       }
       drive_0=K_P0*temp_error[1]+K_I0*integral_0+K_d0*diff_0;
@@ -210,7 +211,7 @@ Serial.print("\t");
         time_2=millis();
       }
       else if (millis()-time_2<t22) {
-        if(error_2[1]>t_fluc)
+        if(error_2[1]>temp_threshold)
         { //The timer starts when the temperature reaches temp_denature-1.5
         time_2=millis();
       }
