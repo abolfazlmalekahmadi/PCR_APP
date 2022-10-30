@@ -88,7 +88,6 @@ void loop() {
   float f_heating = 0.8;
   float temp_current , t00 , t22 , time_stage=6000 , t2=6000, tpe=00000, temp_threshold=2.0, 
       temp_denature=95,
-      t_cntrl=2.0,
       integral_pd=0,
       diff_pd,
       ctrl_pd=1,
@@ -138,7 +137,7 @@ void loop() {
   else Serial.print("preDen\t");
   Serial.print(temp_current);
   Serial.print("\t");
-   if (temp_error[1]>t_cntrl){ // If this condition was true then it means that we haven't reached the temp_denature so we have to set the drive to 255 and restart the timer.
+   if (temp_error[1]>temp_threshold){ // If this condition was true then it means that we haven't reached the temp_denature so we have to set the drive to 255 and restart the timer.
       integral_0=0;
       diff_0=0;
       drive_0=255;
@@ -198,7 +197,7 @@ Serial.print("\t");
   Serial.print(temp_current);
   Serial.print("\t");
   //Serial.print("\n");
-   if (error_2[1]>t_cntrl){
+   if (error_2[1]>temp_threshold){
       integral_2=0;
       diff_2=0;
       drive_2=255;
