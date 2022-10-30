@@ -32,7 +32,7 @@ const int resetPin = 3;
 String Cycle_state;
 int N_cycle=40; // Total Number of Cycles
 short mode;
-float f=0.0;//Motor drive coefficient 
+float 
       temp_error[2],
       temp_error_extension[2],
       time_current_denature_stage,
@@ -41,8 +41,8 @@ float f=0.0;//Motor drive coefficient
       drive_1,
       time_current_extension_stage,
       drive_2;
-int iter=1;
-int thermoDO = 12;
+int iter = 1;
+int thermoCO = 12;
 int thermoCS = 10;
 int thermoCLK = 11;
 const int Number_of_fields = 3;
@@ -72,63 +72,67 @@ void setup() {
   Wire.onReceive(stop_func);
   pinMode(resetPin, OUTPUT);
   digitalWrite(resetPin, HIGH);
-    delay(500);
-    digitalWrite(EN_PIN_1, HIGH);
-    digitalWrite(EN_PIN_2, HIGH);
+  delay(500);
+  digitalWrite(EN_PIN_1, HIGH);
+  digitalWrite(EN_PIN_2, HIGH);
   temp_error[0]=0;
   temp_error_extension[0]=0;
 }
 
 void loop() {
-  int temp_extension=60;
-  int time_predenature=0,
-      time_denature = 60000,
-      time_extension=6000,
-      time_postextension = 60000,
-  float f_cooling = 0;
-  float f_heating = 0.8;
-  float temp_current , time_should_in_denature , time_should_in_extension , temp_threshold=2.0, 
-      temp_denature=95,
-      integral_pd=0,
-      diff_pd,
-      ctrl_pd=1,
-      integral_pe=0,
-      diff_pe,
-      ctrl_pe=1,
-      integral_0=0,
-      diff_0,
-      ctrl_0=1,
-      integral_1=0,
-      diff_1,
-      ctrl_1=1,
-      integral_2=0,
-      diff_2,
-      ctrl_2=1,
-      K_P0=60,
-      K_I0=4,
-      K_d0=0,
-      K_P1=50,
-      K_I1=1.5,
-      K_d1=0,
-      K_P2=25,
-      K_I2=1.5,
-      temp_denature=95,
-      K_d2=0;
-  while(Serial.available()==0){}
+  // Stage Times
+  float time_predenature = 0,
+        time_denature = 60000,
+        time_extension = 6000,
+        time_postextension = 60000,
+        time_should_in_denature,
+        time_should_in_extension;
+  // Drive coefficients
+  float f_heating = 0.8,
+        f_cooling = 0.0,
+        f = 0.0;
+  // Stage Tempratures
+  float temp_denature = 95,
+        temp_extension = 60,
+        temp_threshold = 2.0, 
+        temp_current,
+        integral_pd = 0,
+        diff_pd,
+        ctrl_pd=1,
+        integral_pe=0,
+        diff_pe,
+        ctrl_pe=1,
+        integral_0=0,
+        diff_0,
+        ctrl_0=1,
+        integral_1=0,
+        diff_1,
+        ctrl_1=1,
+        integral_2=0,
+        diff_2,
+        ctrl_2=1,
+        K_P0=60,
+        K_I0=4,
+        K_d0=0,
+        K_P1=50,
+        K_I1=1.5,
+        K_d1=0,
+        K_P2=25,
+        K_I2=1.5,
+        K_d2=0;
 
-  // put your main code here, to run repeatedly:
-  if (iter<=N_cycle) {/*# of iterations*/
-    /*denature*/
-  while (ctrl_0==1) {
-    
-    if(iter==1) time_should_in_denature=time_predenature;
-    else time_should_in_denature=time_denature;
-    mode=heat;
-    f = f_heating;
-    motorGo(MOTOR_1, heat,255);
-  temp_current=ktc.readCelsius();
+  while(Serial.available() == 0){}
+
+  if (iter<=N_cycle) { // If we havent reached the end of the Cycle do this
   
-  temp_error[1]=temp_denature-temp_current;
+  while (ctrl_0 == 1) {
+    if(iter == 1) time_should_in_denature = time_predenature; // If we are in the first cycle, do a predenaturation stage
+    else time_should_in_denature=time_denature; // If we are over the first stage, then we just need to do denaturation
+    mode = heat;
+    f = f_heating;
+    motorGo(MOTOR_1, heat, 255);
+  temp_current=ktc.readCelsius();
+  temp_error[1]=temp_denature-temp_current; // Difference in the current temprature and the denaturation error
   integral_0=integral_0+temp_error[1];
   diff_0=temp_error[1]-temp_error[0];
   Cycle_state = "*";
