@@ -36,7 +36,7 @@ float f=0.0;//Motor drive coefficient
       temp_error[2],
       error_1[2],
       error_2[2],
-      time_stage,
+      time_current_stage,
       drive_0,
       time_1,
       drive_1,
@@ -140,16 +140,16 @@ void loop() {
       integral_0=0;
       diff_0=0;
       drive_0=255;
-      time_stage=millis();
+      time_current_stage=millis();
     }   else if(temp_error[1]<(-5)){ //temp_error = temp_denature - temp_current if we are so much higher than the emergency cooling temprature, we change the peltier direction.
         drive_0=255;
         mode=cool;
         f = f_cooling;
 
       }
-      else if (millis()-time_stage<t00) {
+      else if (millis()-time_current_stage<t00) {
         if(temp_error[1]>t_fluc){ //The timer starts when the temperature reaches temp_denature-t_fluc
-        time_stage=millis();
+        time_current_stage=millis();
       }
       drive_0=K_P0*temp_error[1]+K_I0*integral_0+K_d0*diff_0;
       } else {
