@@ -86,7 +86,7 @@ void loop() {
       time_stage = 60000,
   float f_cooling = 0;
   float f_heating = 0.8;
-  float temp_current , t00 , t22 , time_stage=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
+  float temp_current , t00 , t22 , time_stage=6000 , t2=6000, tpe=00000, temp_threshold=2.0, 
       temp_denature=95,
       t_cntrl=2.0,
       integral_pd=0,
