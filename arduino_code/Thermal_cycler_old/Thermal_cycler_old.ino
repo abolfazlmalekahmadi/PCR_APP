@@ -85,6 +85,7 @@ void loop() {
   float f_cooling = 0;
   float f_heating = 0.8;
   float temp_current , t00 , t22 , t0=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
+      temp_denature=95,
       t_cntrl=2.0,
       integral_pd=0,
       diff_pd,
@@ -109,7 +110,7 @@ void loop() {
       K_d1=0,
       K_P2=25,
       K_I2=1.5,
-      temp_0=95,
+      temp_denature=95,
       K_d2=0;
   while(Serial.available()==0){}
 
@@ -124,8 +125,8 @@ void loop() {
     f = f_heating;
     motorGo(MOTOR_1, heat,255);
   temp_current=ktc.readCelsius();
-  float temp_0=95;
-  error_0[1]=temp_0-temp_current;
+  
+  error_0[1]=temp_denature-temp_current;
   integral_0=integral_0+error_0[1];
   diff_0=error_0[1]-error_0[0];
   Cycle_state = "*";
@@ -147,7 +148,7 @@ void loop() {
 
       }
       else if (millis()-time_0<t00) {
-        if(error_0[1]>t_fluc){ //The timer starts when the temperature reaches temp_0-t_fluc
+        if(error_0[1]>t_fluc){ //The timer starts when the temperature reaches temp_denature-t_fluc
         time_0=millis();
       }
       drive_0=K_P0*error_0[1]+K_I0*integral_0+K_d0*diff_0;
@@ -209,7 +210,7 @@ Serial.print("\t");
       }
       else if (millis()-time_2<t22) {
         if(error_2[1]>t_fluc)
-        { //The timer starts when the temperature reaches temp_0-1.5
+        { //The timer starts when the temperature reaches temp_denature-1.5
         time_2=millis();
       }
       drive_2=K_P2*error_2[1]+K_I2*integral_2+K_d2*diff_2;
