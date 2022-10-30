@@ -84,7 +84,7 @@ void setup() {
 void loop() {
   float f_cooling = 0;
   float f_heating = 0.8;
-  float temp_er , t00 , t22 , t0=6000 , t2=6000, tpe=00000, t_fluc=2.0, ;
+  float temp_er , t00 , t22 , t0=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
       t_cntrl=2.0,
       integral_pd=0,
       diff_pd,
@@ -109,14 +109,15 @@ void loop() {
       K_d1=0,
       K_P2=25,
       K_I2=1.5,
-      K_d2=0,
+      temp_0=95,
+      K_d2=0;
   while(Serial.available()==0){}
 
   // put your main code here, to run repeatedly:
   if (iter<=N_cycle) {/*# of iterations*/
     /*denature*/
   while (ctrl_0==1) {
-    tpd=0000;
+    int tpd=0000;
     if(iter==1) t00=tpd+t0;
     else t00=t0;
     mode=heat;
@@ -183,7 +184,7 @@ if(iter==N_cycle) {t22=tpe+t2;time_2=millis();}
     //motorGo(MOTOR_1, BRAKE,0);
     temp_er=ktc.readCelsius();
   
-  temp_2=60;
+  int temp_2=60;
   error_2[1]=temp_2-temp_er;
   integral_2=integral_2+error_2[1];
   diff_2=error_2[1]-error_2[0];
