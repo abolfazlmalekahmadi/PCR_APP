@@ -32,7 +32,7 @@ const int resetPin = 3;
 String Cycle_state;
 int N_cycle=40; // Total Number of Cycles
 short mode;
-float f=0.65;
+float f=0.65;//Motor drive coefficient 
       error_0[2],
       error_1[2],
       error_2[2],
