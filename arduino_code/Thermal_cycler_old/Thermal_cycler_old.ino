@@ -6,8 +6,8 @@
 #define SHUTTER_PIN A4
 #define FOCUS_PIN A5
 #define BRAKE 0
-#define cool    1
-#define heat   2
+#define cool 0
+#define heat 1
 #define CS_THRESHOLD 15   // Definition of safety current (Check: "1.3 Monster Shield Example").
 //MOTOR 1
 #define MOTOR_A1_PIN 7
@@ -30,7 +30,7 @@
 #define MOTOR_2 1
 const int resetPin = 3;
 String Cycle_state;
-int N_cycle=40;
+int N_cycle=40; // Total Number of Cycles
 short mode;
 float f=0.65;
       error_0[2],
@@ -84,7 +84,7 @@ void setup() {
 void loop() {
   float f_cooling = 0;
   float f_heating = 0.8;
-  float temp_er , t00 , t22 , t0=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
+  float temp_current , t00 , t22 , t0=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
       t_cntrl=2.0,
       integral_pd=0,
       diff_pd,
@@ -123,9 +123,9 @@ void loop() {
     mode=heat;
     f = f_heating;
     motorGo(MOTOR_1, heat,255);
-  temp_er=ktc.readCelsius();
+  temp_current=ktc.readCelsius();
   float temp_0=95;
-  error_0[1]=temp_0-temp_er;
+  error_0[1]=temp_0-temp_current;
   integral_0=integral_0+error_0[1];
   diff_0=error_0[1]-error_0[0];
   Cycle_state = "*";
@@ -133,7 +133,7 @@ void loop() {
   Serial.print("\t");
   if (iter>1) Serial.print("Den\t");
   else Serial.print("preDen\t");
-  Serial.print(temp_er);
+  Serial.print(temp_current);
   Serial.print("\t");
    if (error_0[1]>t_cntrl){
       integral_0=0;
@@ -182,10 +182,10 @@ if(iter==N_cycle) {t22=tpe+t2;time_2=millis();}
     mode=heat;
     f = f_heating;
     //motorGo(MOTOR_1, BRAKE,0);
-    temp_er=ktc.readCelsius();
+    temp_current=ktc.readCelsius();
   
   int temp_2=60;
-  error_2[1]=temp_2-temp_er;
+  error_2[1]=temp_2-temp_current;
   integral_2=integral_2+error_2[1];
   diff_2=error_2[1]-error_2[0];
 //  Serial.print(millis());
@@ -193,7 +193,7 @@ Serial.print(Cycle_state);
 Serial.print("\t");
   if (iter<N_cycle) Serial.print("Ext\t");
   else Serial.print("postExt\t");
-  Serial.print(temp_er);
+  Serial.print(temp_current);
   Serial.print("\t");
   //Serial.print("\n");
    if (error_2[1]>t_cntrl){
@@ -258,12 +258,12 @@ void motorGo(uint8_t motor, uint8_t direct, uint8_t pwm)         //Function that
 {
   if(motor == MOTOR_1)
   {
-    if(direct == 1)
+    if(direct == 0)
     {
       digitalWrite(MOTOR_A1_PIN, LOW);
       digitalWrite(MOTOR_B1_PIN, HIGH);
     }
-    else if(direct == 2)
+    else if(direct == 1)
     {
       digitalWrite(MOTOR_A1_PIN, HIGH);
       digitalWrite(MOTOR_B1_PIN, LOW);
@@ -278,12 +278,12 @@ void motorGo(uint8_t motor, uint8_t direct, uint8_t pwm)         //Function that
   }
   else if(motor == MOTOR_2)
   {
-    if(direct == 1)
+    if(direct == 0)
     {
       digitalWrite(MOTOR_A2_PIN, LOW);
       digitalWrite(MOTOR_B2_PIN, HIGH);
     }
-    else if(direct == 2)
+    else if(direct == 1)
     {
       digitalWrite(MOTOR_A2_PIN, HIGH);
       digitalWrite(MOTOR_B2_PIN, LOW);
