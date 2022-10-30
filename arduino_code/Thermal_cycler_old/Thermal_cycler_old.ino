@@ -82,10 +82,12 @@ void setup() {
 }
 
 void loop() {
+  int time_predenature=0;
   float f_cooling = 0;
   float f_heating = 0.8;
   float temp_current , t00 , t22 , t0=6000 , t2=6000, tpe=00000, t_fluc=2.0, 
       temp_denature=95,
+      
       t_cntrl=2.0,
       integral_pd=0,
       diff_pd,
@@ -118,7 +120,7 @@ void loop() {
   if (iter<=N_cycle) {/*# of iterations*/
     /*denature*/
   while (ctrl_0==1) {
-    int tpd=0000;
+    
     if(iter==1) t00=tpd+t0;
     else t00=t0;
     mode=heat;
@@ -146,7 +148,7 @@ void loop() {
         mode=cool;
         f = f_cooling;
       }
-      else if (millis()-time_current_stage<t00) {
+      else if (millis()-time_current_stage<t00) { // This checks if we have spent enough time on the current stage.
         if(temp_error[1]>t_fluc){ //The timer starts when the temperature reaches temp_denature-t_fluc
         time_current_stage=millis();
       }
