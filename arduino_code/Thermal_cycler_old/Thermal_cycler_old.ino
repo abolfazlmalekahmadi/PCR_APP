@@ -290,7 +290,6 @@ void captureImage()
   digitalWrite(SHUTTER_PIN,0);
   delay(6000);
   pinMode(SHUTTER_PIN,INPUT);
-//  Serial.print("done\n");
 }
 void stop_func(int howMany){
   while(Wire.available()){
