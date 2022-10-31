@@ -29,7 +29,8 @@
 #define MOTOR_1 0
 #define MOTOR_2 1
 const int resetPin = 3;
-String Cycle_state;
+char Cycle_state;
+char stage_name;
 int N_cycle=40; // Total Number of Cycles
 short mode;
 float 
@@ -48,7 +49,7 @@ int thermoCLK = 11;
 const int Number_of_fields = 3;
 int fieldIndex = 0;
 int values[Number_of_fields];
-MAX6675 ktc(thermoCLK, thermoCS, thermoDO);
+MAX6675 ktc(thermoCLK, thermoCS, thermoCO);
 void setup() {
   pinMode(MOTOR_A1_PIN, OUTPUT);
   pinMode(MOTOR_B1_PIN, OUTPUT);
@@ -80,6 +81,8 @@ void setup() {
 }
 
 void loop() {
+  char Cycle_state;
+  char stage_name;
   // Stage Times
   float time_predenature = 0,
         time_denature = 60000,
@@ -96,30 +99,33 @@ void loop() {
         temp_extension = 60,
         temp_threshold = 2.0, 
         temp_current,
-        integral_pd = 0,
-        diff_pd,
-        ctrl_pd=1,
-        integral_pe=0,
-        diff_pe,
-        ctrl_pe=1,
+        integral_pd = 0,//none
+        diff_pd,//none
+        ctrl_pd=1,//none
+        integral_pe=0,//none
+        diff_pe,//none
+        ctrl_pe=1,//none
         integral_0=0,
         diff_0,
-        ctrl_0=1,
-        integral_1=0,
-        diff_1,
-        ctrl_1=1,
-        integral_2=0,
+        ctrl_0=1,//motor control
+        integral_1=0,//none
+        diff_1,//none
+        ctrl_1=1,//motor control
+        integral_2=0,//wtf
         diff_2,
-        ctrl_2=1,
+        ctrl_2=1,//motor control
         K_P0=60,
         K_I0=4,
         K_d0=0,
-        K_P1=50,
-        K_I1=1.5,
-        K_d1=0,
+        K_P1=50,//none
+        K_I1=1.5,//none
+        K_d1=0,//none
         K_P2=25,
         K_I2=1.5,
-        K_d2=0;
+        K_d2=0,
+        total_drive1=0,
+        total_drive2=0;
+        
 
   while(Serial.available() == 0){}
 
@@ -135,13 +141,12 @@ void loop() {
   temp_error[1]=temp_denature-temp_current; // Difference in the current temprature and the denaturation error
   integral_0=integral_0+temp_error[1];
   diff_0=temp_error[1]-temp_error[0];
-  Cycle_state = "*";
-  Serial.print(Cycle_state);
-  Serial.print("\t");
-  if (iter>1) Serial.print("Den\t");
-  else Serial.print("preDen\t");
-  Serial.print(temp_current);
-  Serial.print("\t");
+
+  // Serial.print("\t");
+  if (iter>1) stage_name="D";
+  else stage_name="P";
+  // Serial.print(temp_current);
+  // Serial.print("\t");
    if (temp_error[1]>temp_threshold){ // If this condition was true then it means that we haven't reached the temp_denature so we have to set the drive to 255 and restart the timer.
       integral_0=0;
       diff_0=0;
@@ -168,13 +173,17 @@ void loop() {
       }
       motorGo(MOTOR_2, mode,f*drive_0);
 //          Serial.print("\t");
-       Serial.print(f*drive_0);
-       Serial.print("\t");
-       Serial.print("mode:");
-       Serial.print(mode);
-       Serial.print("\t");
-       Serial.print(iter);
-       Serial.print("\n");
+       Cycle_state = "*";
+       total_drive1 = drive_0*f;
+       show_result(*Cycle_state , *stage_name , temp_current , total_drive1 , iter);
+      //  Serial.print(Cycle_state);
+      //  Serial.print(f*drive_0);
+      //  Serial.print("\t");
+      //  Serial.print("mode:");
+      //  Serial.print(mode);
+      //  Serial.print("\t");
+      //  Serial.print(iter);
+      //  Serial.print("\n");
            delay(500);
            temp_error[0]=temp_error[1];
    }
@@ -195,12 +204,12 @@ if(iter==N_cycle) {time_should_in_extension=time_postextension+time_extension;ti
   integral_2=integral_2+temp_error_extension[1];
   diff_2=temp_error_extension[1]-temp_error_extension[0];
 //  Serial.print(millis());
-Serial.print(Cycle_state);
-Serial.print("\t");
-  if (iter<N_cycle) Serial.print("Ext\t");
-  else Serial.print("postExt\t");
-  Serial.print(temp_current);
-  Serial.print("\t");
+// Serial.print(Cycle_state);
+// Serial.print("\t");
+  if (iter<N_cycle) stage_name="X";
+  else stage_name="N";
+  // Serial.print(temp_current);
+  // Serial.print("\t");
   //Serial.print("\n");
    if (temp_error_extension[1]>temp_threshold){
       integral_2=0;
@@ -221,7 +230,7 @@ Serial.print("\t");
       drive_2=K_P2*temp_error_extension[1]+K_I2*integral_2+K_d2*diff_2;
       } else {
         ctrl_2=0;
-        Serial.print("\n");
+        // Serial.print("\n");
         captureImage();
       }
       if (drive_2>255) {
@@ -231,16 +240,19 @@ Serial.print("\t");
         drive_2=0;
       }
       motorGo(MOTOR_2, mode,f*drive_2);
+      total_drive2=f*drive_2;
+       show_result("*" , *stage_name , temp_current , total_drive2 , iter);
 //       Serial.print("\t");
-       Serial.print(f*drive_2);
-       Serial.print("\t");
-       Serial.print("mode:");
-       Serial.print(mode);
-//       Serial.print("\tcycle : ");
-//       Serial.print(iter);
-       Serial.print("\t");
-       Serial.print(iter);
-       Serial.print("\n");
+
+//        Serial.print(f*drive_2);
+//        Serial.print("\t");
+//        Serial.print("mode:");
+//        Serial.print(mode);
+// //       Serial.print("\tcycle : ");
+// //       Serial.print(iter);
+//        Serial.print("\t");
+//        Serial.print(iter);
+//        Serial.print("\n");
            delay(500);
            temp_error_extension[0]=temp_error_extension[1];
    }
@@ -306,22 +318,22 @@ void motorGo(uint8_t motor, uint8_t direct, uint8_t pwm)         //Function that
 void captureImage()
 {
 //  Serial.print("\nFocus -- ");
-  Cycle_state = "#";
+//  Cycle_state = "#";
   pinMode(FOCUS_PIN,OUTPUT);
   digitalWrite(FOCUS_PIN,0);
   delay(1000);
   pinMode(FOCUS_PIN,INPUT);
-  
-  Serial.print(Cycle_state);
-  Serial.print("\t");
-  Serial.print("TRIGGER");
-  Serial.print("\t");
-  Serial.print(100);
-  Serial.print("\t");
-  Serial.print(100);
-  Serial.print("\t");
-  Serial.print("mode:3");
-  Serial.print("\t");
+  show_result("#" , "T" , 0 , 0 , 0);
+  // Serial.print(Cycle_state);
+  // Serial.print("\t");
+  // Serial.print("TRIGGER");
+  // Serial.print("\t");
+  // Serial.print(100);
+  // Serial.print("\t");
+  // Serial.print(100);
+  // Serial.print("\t");
+  // Serial.print("mode:3");
+  // Serial.print("\t");
   ////
 //  Serial.print("Shutter -- ");
   pinMode(SHUTTER_PIN,OUTPUT);
@@ -337,4 +349,18 @@ void stop_func(int howMany){
 //  delay(500);
 //  digitalWrite(resetPin, HIGH);
   }
+}
+void show_result(char state , char stage_name , float temp , float drive , int iter ){
+
+    Serial.print(state);
+    Serial.print("-");
+    Serial.print(stage_name);
+    Serial.print("-");
+    Serial.print(temp);
+    Serial.print("-");
+    Serial.print(drive);
+    Serial.print("-");
+    Serial.print(iter);
+    Serial.print("\n");
+
 }
