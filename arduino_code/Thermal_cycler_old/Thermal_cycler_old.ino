@@ -203,7 +203,7 @@ if(iter==N_cycle) {time_should_in_extension=time_postextension+time_extension;ti
       drive_2=K_P2*temp_error_extension[1]+K_I2*integral_2+K_d2*diff_2;
       } else {
         ctrl_2=0;
-        // Serial.print("\n");
+
         captureImage();
       }
       if (drive_2>255) {
